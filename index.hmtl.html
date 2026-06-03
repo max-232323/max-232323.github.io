@@ -128,3 +128,418 @@ nextQuestion();
 
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 Länder & Flaggen Quiz</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    width: 100%;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 2.5em;
+}
+
+h2 {
+    color: #34495e;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+h3 {
+    color: #2c3e50;
+    text-align: center;
+    margin: 20px 0;
+    font-size: 1.2em;
+}
+
+p {
+    text-align: center;
+    color: #555;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+input {
+    padding: 12px 15px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 300px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.3s;
+    margin: 10px auto;
+    display: block;
+}
+
+input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+}
+
+button {
+    padding: 12px 25px;
+    margin: 10px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-weight: bold;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#flag {
+    font-size: 150px;
+    margin: 30px 0;
+    text-align: center;
+}
+
+.score {
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f0f4ff;
+    border-radius: 8px;
+}
+
+#quizArea {
+    display: none;
+}
+
+#startScreen {
+    text-align: center;
+}
+
+.buttons-group {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#result {
+    text-align: center;
+    font-size: 18px;
+    margin: 15px 0;
+    min-height: 30px;
+}
+
+.result-correct {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.result-wrong {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 25px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    #flag {
+        font-size: 100px;
+    }
+    
+    button {
+        width: 90%;
+        max-width: 200px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="startScreen">
+        <h1>🌍 Länder & Flaggen Quiz</h1>
+
+        <p>Willkommen! Bitte gib deinen Namen ein:</p>
+
+        <input type="text" id="playerName" placeholder="Dein Name" onkeypress="if(event.key==='Enter') startGame('land')">
+
+        <p style="margin-top: 30px; color: #666;">Wähle einen Modus:</p>
+        
+        <div class="buttons-group">
+            <button onclick="startGame('land')">
+                🏛️ Länder raten
+            </button>
+
+            <button onclick="startGame('flag')">
+                🚩 Flaggen raten
+            </button>
+        </div>
+    </div>
+
+    <div id="quizArea">
+
+        <h2 id="welcome"></h2>
+
+        <div class="score">
+            Punkte: <span id="score">0</span> / 50
+        </div>
+
+        <hr style="margin: 20px 0; border: none; border-top: 2px solid #eee;">
+
+        <div id="question"></div>
+        <div id="flag"></div>
+
+        <input id="answer" type="text" placeholder="Antwort eingeben" onkeypress="if(event.key==='Enter') checkAnswer()">
+
+        <br><br>
+
+        <button onclick="checkAnswer()" style="width: 100%; max-width: 300px;">
+            ✓ Antwort prüfen
+        </button>
+
+        <p id="result"></p>
+
+    </div>
+
+</div>
+
+<script>
+
+let mode = "";
+let score = 0;
+let currentAnswer = "";
+let questionCount = 0;
+
+const countries = [
+{country:"Deutschland",capital:"Berlin"},
+{country:"Frankreich",capital:"Paris"},
+{country:"Spanien",capital:"Madrid"},
+{country:"Italien",capital:"Rom"},
+{country:"Portugal",capital:"Lissabon"},
+{country:"Belgien",capital:"Brüssel"},
+{country:"Niederlande",capital:"Amsterdam"},
+{country:"Österreich",capital:"Wien"},
+{country:"Schweiz",capital:"Bern"},
+{country:"Polen",capital:"Warschau"},
+{country:"Tschechien",capital:"Prag"},
+{country:"Ungarn",capital:"Budapest"},
+{country:"Griechenland",capital:"Athen"},
+{country:"Türkei",capital:"Ankara"},
+{country:"Japan",capital:"Tokio"},
+{country:"China",capital:"Peking"},
+{country:"Indien",capital:"Neu-Delhi"},
+{country:"Südkorea",capital:"Seoul"},
+{country:"Thailand",capital:"Bangkok"},
+{country:"Vietnam",capital:"Hanoi"},
+{country:"Australien",capital:"Canberra"},
+{country:"Neuseeland",capital:"Wellington"},
+{country:"Kanada",capital:"Ottawa"},
+{country:"USA",capital:"Washington D.C."},
+{country:"Mexiko",capital:"Mexiko-Stadt"},
+{country:"Brasilien",capital:"Brasília"},
+{country:"Argentinien",capital:"Buenos Aires"},
+{country:"Chile",capital:"Santiago"},
+{country:"Kolumbien",capital:"Bogotá"},
+{country:"Peru",capital:"Lima"},
+{country:"Ägypten",capital:"Kairo"},
+{country:"Marokko",capital:"Rabat"},
+{country:"Südafrika",capital:"Pretoria"},
+{country:"Nigeria",capital:"Abuja"},
+{country:"Kenia",capital:"Nairobi"},
+{country:"Saudi-Arabien",capital:"Riad"},
+{country:"Israel",capital:"Jerusalem"},
+{country:"VAE",capital:"Abu Dhabi"},
+{country:"Russland",capital:"Moskau"},
+{country:"Ukraine",capital:"Kiew"},
+{country:"Norwegen",capital:"Oslo"},
+{country:"Schweden",capital:"Stockholm"},
+{country:"Finnland",capital:"Helsinki"},
+{country:"Dänemark",capital:"Kopenhagen"},
+{country:"Irland",capital:"Dublin"},
+{country:"Island",capital:"Reykjavík"},
+{country:"Rumänien",capital:"Bukarest"},
+{country:"Bulgarien",capital:"Sofia"},
+{country:"Kroatien",capital:"Zagreb"},
+{country:"Serbien",capital:"Belgrad"}
+];
+
+const flags = [
+{flag:"🇩🇪",country:"Deutschland"},
+{flag:"🇫🇷",country:"Frankreich"},
+{flag:"🇪🇸",country:"Spanien"},
+{flag:"🇮🇹",country:"Italien"},
+{flag:"🇵🇹",country:"Portugal"},
+{flag:"🇧🇪",country:"Belgien"},
+{flag:"🇳🇱",country:"Niederlande"},
+{flag:"🇦🇹",country:"Österreich"},
+{flag:"🇨🇭",country:"Schweiz"},
+{flag:"🇵🇱",country:"Polen"},
+{flag:"🇨🇿",country:"Tschechien"},
+{flag:"🇭🇺",country:"Ungarn"},
+{flag:"🇬🇷",country:"Griechenland"},
+{flag:"🇹🇷",country:"Türkei"},
+{flag:"🇯🇵",country:"Japan"},
+{flag:"🇨🇳",country:"China"},
+{flag:"🇮🇳",country:"Indien"},
+{flag:"🇰🇷",country:"Südkorea"},
+{flag:"🇹🇭",country:"Thailand"},
+{flag:"🇻🇳",country:"Vietnam"},
+{flag:"🇦🇺",country:"Australien"},
+{flag:"🇳🇿",country:"Neuseeland"},
+{flag:"🇨🇦",country:"Kanada"},
+{flag:"🇺🇸",country:"USA"},
+{flag:"🇲🇽",country:"Mexiko"},
+{flag:"🇧🇷",country:"Brasilien"},
+{flag:"🇦🇷",country:"Argentinien"},
+{flag:"🇨🇱",country:"Chile"},
+{flag:"🇨🇴",country:"Kolumbien"},
+{flag:"🇵🇪",country:"Peru"},
+{flag:"🇪🇬",country:"Ägypten"},
+{flag:"🇲🇦",country:"Marokko"},
+{flag:"🇿🇦",country:"Südafrika"},
+{flag:"🇳🇬",country:"Nigeria"},
+{flag:"🇰🇪",country:"Kenia"},
+{flag:"🇸🇦",country:"Saudi-Arabien"},
+{flag:"🇮🇱",country:"Israel"},
+{flag:"🇦🇪",country:"VAE"},
+{flag:"🇷🇺",country:"Russland"},
+{flag:"🇺🇦",country:"Ukraine"},
+{flag:"🇳🇴",country:"Norwegen"},
+{flag:"🇸🇪",country:"Schweden"},
+{flag:"🇫🇮",country:"Finnland"},
+{flag:"🇩🇰",country:"Dänemark"},
+{flag:"🇮🇪",country:"Irland"},
+{flag:"🇮🇸",country:"Island"},
+{flag:"🇷🇴",country:"Rumänien"},
+{flag:"🇧🇬",country:"Bulgarien"},
+{flag:"🇭🇷",country:"Kroatien"},
+{flag:"🇷🇸",country:"Serbien"}
+];
+
+function startGame(selectedMode){
+    let name = document.getElementById("playerName").value.trim();
+
+    if(name === ""){
+        alert("Bitte Namen eingeben!");
+        return;
+    }
+
+    mode = selectedMode;
+    score = 0;
+    questionCount = 0;
+
+    document.getElementById("startScreen").style.display="none";
+    document.getElementById("quizArea").style.display="block";
+
+    document.getElementById("welcome").innerHTML =
+    "Willkommen, <b>" + name + "</b>!";
+
+    nextQuestion();
+}
+
+function nextQuestion(){
+    document.getElementById("answer").value="";
+    document.getElementById("result").innerHTML="";
+    
+    questionCount++;
+
+    if(mode==="land"){
+        let item = countries[Math.floor(Math.random()*countries.length)];
+        currentAnswer = item.country;
+        document.getElementById("flag").innerHTML="";
+        document.getElementById("question").innerHTML =
+        "<h3>Frage " + questionCount + ": Welches Land hat die Hauptstadt <b>" +
+        item.capital +
+        "</b>?</h3>";
+    }else{
+        let item = flags[Math.floor(Math.random()*flags.length)];
+        currentAnswer = item.country;
+        document.getElementById("question").innerHTML =
+        "<h3>Frage " + questionCount + ": Zu welchem Land gehört diese Flagge?</h3>";
+        document.getElementById("flag").innerHTML = item.flag;
+    }
+    
+    document.getElementById("answer").focus();
+}
+
+function checkAnswer(){
+    let answer = document.getElementById("answer").value.trim();
+    let resultDiv = document.getElementById("result");
+
+    if(answer.toLowerCase() === currentAnswer.toLowerCase()){
+        score++;
+        document.getElementById("score").innerText = score;
+        resultDiv.className = "result-correct";
+        resultDiv.innerHTML = "✅ Richtig!";
+
+        if(score >= 50){
+            setTimeout(() => {
+                alert("🏆 GEWONNEN!\n\nDu hast 50 Punkte erreicht!\nGratuliere!");
+                location.reload();
+            },1000);
+            return;
+        }
+    }else{
+        resultDiv.className = "result-wrong";
+        resultDiv.innerHTML = "❌ Falsch! Richtige Antwort: <b>" + currentAnswer + "</b>";
+    }
+
+    setTimeout(nextQuestion, 2000);
+}
+
+// Focus on name input when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById("playerName").focus();
+});
+
+</script>
+
+</body>
+</html>
