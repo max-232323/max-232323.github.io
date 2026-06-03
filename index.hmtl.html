@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Länder Quiz Memory</title>
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background: #f2f6ff;
+}
+.container {
+    margin-top: 50px;
+}
+button {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+#score {
+    font-size: 20px;
+    margin: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌍 Länder Quiz</h1>
+    <div id="score">Punkte: 0</div>
+    <h2 id="question"></h2>
+    <div id="answers"></div>
+    <button onclick="nextQuestion()">Nächste Frage</button>
+</div>
+
+<script>
+const countries = [
+["Deutschland","Berlin"],
+["Frankreich","Paris"],
+["Italien","Rom"],
+["Spanien","Madrid"],
+["Portugal","Lissabon"],
+["Niederlande","Amsterdam"],
+["Belgien","Brüssel"],
+["Schweiz","Bern"],
+["Österreich","Wien"],
+["Polen","Warschau"],
+["Tschechien","Prag"],
+["Dänemark","Kopenhagen"],
+["Schweden","Stockholm"],
+["Norwegen","Oslo"],
+["Finnland","Helsinki"],
+["Griechenland","Athen"],
+["Türkei","Ankara"],
+["Ukraine","Kiew"],
+["Russland","Moskau"],
+["USA","Washington D.C."],
+["Kanada","Ottawa"],
+["Mexiko","Mexiko-Stadt"],
+["Brasilien","Brasília"],
+["Argentinien","Buenos Aires"],
+["Chile","Santiago"],
+["Peru","Lima"],
+["Kolumbien","Bogotá"],
+["Venezuela","Caracas"],
+["Japan","Tokio"],
+["China","Peking"],
+["Südkorea","Seoul"],
+["Indien","Neu-Delhi"],
+["Pakistan","Islamabad"],
+["Thailand","Bangkok"],
+["Vietnam","Hanoi"],
+["Indonesien","Jakarta"],
+["Malaysia","Kuala Lumpur"],
+["Philippinen","Manila"],
+["Ägypten","Kairo"],
+["Marokko","Rabat"],
+["Algerien","Algier"],
+["Nigeria","Abuja"],
+["Südafrika","Pretoria"],
+["Kenia","Nairobi"],
+["Australien","Canberra"],
+["Neuseeland","Wellington"],
+["Saudi-Arabien","Riad"],
+["Iran","Teheran"],
+["Irak","Bagdad"],
+["Israel","Jerusalem"]
+];
+
+let score = 0;
+let current;
+
+function nextQuestion() {
+    current = countries[Math.floor(Math.random() * countries.length)];
+    document.getElementById("question").innerText = "Hauptstadt von: " + current[0];
+
+    let answers = [current[1]];
+
+    while (answers.length < 4) {
+        let random = countries[Math.floor(Math.random() * countries.length)][1];
+        if (!answers.includes(random)) answers.push(random);
+    }
+
+    answers.sort(() => Math.random() - 0.5);
+
+    let html = "";
+    answers.forEach(ans => {
+        html += `<button onclick="checkAnswer('${ans}')">${ans}</button>`;
+    });
+
+    document.getElementById("answers").innerHTML = html;
+}
+
+function checkAnswer(ans) {
+    if (ans === current[1]) {
+        score++;
+        alert("Richtig!");
+    } else {
+        alert("Falsch! Richtige Antwort: " + current[1]);
+    }
+    document.getElementById("score").innerText = "Punkte: " + score;
+    nextQuestion();
+}
+
+nextQuestion();
+</script>
+
+</body>
+</html>
